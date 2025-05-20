@@ -1,0 +1,20 @@
+# 忽略虚拟环境文件夹
+venv/
+
+# 忽略 Python 编译文件和缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 忽略敏感信息文件 (如果你的 .env 文件包含密钥等)
+.env
+
+# 忽略日志文件
+*.log
+flask.log
+output.log
+
+# 忽略其他操作系统或编辑器生成的文件 (可选，但推荐)
+.DS_Store
+Thumbs.db

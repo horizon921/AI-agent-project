@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LLM API 演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .chat-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .ai-message {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .input-container {
+            display: flex;
+            margin-top: 10px;
+        }
+        #message-input {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 15px;
+            margin-left: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .parameter-container {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .result-comparison {
+            display: flex;
+            margin-top: 20px;
+        }
+        .result-column {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin: 0 5px;
+            border-radius: 5px;
+        }
+        h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LLM API 演示系统</h1>
+        
+        <div class="parameter-container">
+            <h3>参数设置</h3>
+            <label for="temperature-select">Temperature: </label>
+            <select id="temperature-select">
+                <option value="0.7" selected>0.7 (更稳定)</option>
+                <option value="1.2">1.2 (更创造性)</option>
+            </select>
+        </div>
+        
+        <div class="chat-container" id="chat-container"></div>
+        
+        <div class="input-container">
+            <input type="text" id="message-input" placeholder="输入您的问题...">
+            <button id="send-button">发送</button>
+        </div>
+        
+        <div class="result-comparison" id="comparison-container" style="display: none;">
+            <div class="result-column">
+                <h3>Temperature = 0.7 结果</h3>
+                <div id="result-07"></div>
+            </div>
+            <div class="result-column">
+                <h3>Temperature = 1.2 结果</h3>
+                <div id="result-12"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('send-button').addEventListener('click', sendMessage);
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+            const temperature = document.getElementById('temperature-select').value;
+            
+            if (message) {
+                // 添加用户消息到聊天窗口
+                addMessage('user', message);
+                messageInput.value = '';
+                
+                // 发送请求到后端
+                fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `message=${encodeURIComponent(message)}&temperature=${temperature}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        addMessage('ai', `错误: ${data.error}`);
+                    } else {
+                        addMessage('ai', data.response);
+                        
+                        // 如果用户想比较不同温度的结果
+                        if (message.toLowerCase().includes('比较') || message.toLowerCase().includes('对比')) {
+                            compareTemperatures(message);
+                        }
+                    }
+                })
+                .catch(error => {
+                    addMessage('ai', `发生错误: ${error}`);
+                });
+            }
+        }
+        
+        function addMessage(role, content) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = role === 'user' ? 'user-message' : 'ai-message';
+            
+            // 将换行符转换为HTML换行
+            content = content.replace(/\n/g, '<br>');
+            
+            messageDiv.innerHTML = `<strong>${role === 'user' ? '您' : 'AI'}:</strong> ${content}`;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function compareTemperatures(message) {
+            document.getElementById('comparison-container').style.display = 'flex';
+            
+            // 使用温度0.7发送请求
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `message=${encodeURIComponent(message)}&temperature=0.7`
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result-07').innerHTML = data.response.replace(/\n/g, '<br>');
+            });
+            
+            // 使用温度1.2发送请求
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `message=${encodeURIComponent(message)}&temperature=1.2`
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result-12').innerHTML = data.response.replace(/\n/g, '<br>');
+            });
+        }
+    </script>
+</body>
+</html>
+
