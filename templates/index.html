@@ -1,174 +1,429 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
+
 <head>
-    <title>LLM API 演示</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ModeLLM Studio - 多模态大语言模型应用开发平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+        .model-card {
+            transition: all 0.3s ease;
         }
-        .container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
+
+        .model-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
         }
-        .chat-container {
-            flex-grow: 1;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
+
+        .typing-effect {
+            border-right: 2px solid #000;
+            animation: blink 0.7s infinite;
         }
-        .user-message {
-            background-color: #e3f2fd;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                border-color: transparent
+            }
+
+            50% {
+                border-color: #000
+            }
         }
-        .ai-message {
-            background-color: #f1f1f1;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-        }
-        .input-container {
-            display: flex;
-            margin-top: 10px;
-        }
-        #message-input {
-            flex-grow: 1;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        button {
-            padding: 10px 15px;
-            margin-left: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .parameter-container {
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
-        .result-comparison {
-            display: flex;
-            margin-top: 20px;
-        }
-        .result-column {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            margin: 0 5px;
-            border-radius: 5px;
-        }
-        h3 {
-            margin-top: 0;
+
+        .tab-active {
+            border-bottom: 2px solid #4f46e5;
+            color: #4f46e5;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>LLM API 演示系统</h1>
-        
-        <div class="parameter-container">
-            <h3>参数设置</h3>
-            <label for="temperature-select">Temperature: </label>
-            <select id="temperature-select">
-                <option value="0.7" selected>0.7 (更稳定)</option>
-                <option value="1.2">1.2 (更创造性)</option>
-            </select>
-        </div>
-        
-        <div class="chat-container" id="chat-container"></div>
-        
-        <div class="input-container">
-            <input type="text" id="message-input" placeholder="输入您的问题...">
-            <button id="send-button">发送</button>
-        </div>
-        
-        <div class="result-comparison" id="comparison-container" style="display: none;">
-            <div class="result-column">
-                <h3>Temperature = 0.7 结果</h3>
-                <div id="result-07"></div>
+
+<body class="bg-gray-50">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <img class="h-8 w-auto" src="https://via.placeholder.com/40/4f46e5/FFFFFF?text=M"
+                            alt="ModeLLM Logo">
+                        <span class="ml-2 text-xl font-bold text-indigo-600">ModeLLM Studio</span>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="#"
+                            class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            开发工作台
+                        </a>
+                        <a href="#"
+                            class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            模型中心
+                        </a>
+                        <a href="#"
+                            class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            知识库
+                        </a>
+                        <a href="#"
+                            class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            应用部署
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <button
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        新建项目
+                    </button>
+                    <div class="ml-4 flex items-center">
+                        <img class="h-8 w-8 rounded-full" src="https://via.placeholder.com/40/4f46e5/FFFFFF?text=U"
+                            alt="用户头像">
+                    </div>
+                </div>
             </div>
-            <div class="result-column">
-                <h3>Temperature = 1.2 结果</h3>
-                <div id="result-12"></div>
+        </div>
+    </nav>
+
+    <!-- 主体内容 -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- 项目标题 -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Monica API 智能助手</h1>
+                <p class="text-gray-600">最后编辑: <span id="last-edited"></span></p>
+            </div>
+            <div>
+                <button
+                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium mr-2">
+                    保存项目
+                </button>
+                <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    部署应用
+                </button>
+            </div>
+        </div>
+
+        <!-- 主体工作区 -->
+        <div class="flex space-x-6">
+            <!-- 左侧面板 -->
+            <div class="w-1/4 bg-white rounded-lg shadow-md p-4">
+                <h2 class="text-lg font-semibold mb-4">项目配置</h2>
+
+                <!-- 模型选择 -->
+                <div class="mb-6">
+                    <h3 class="text-md font-medium mb-2">模型选择</h3>
+                    <select class="w-full border border-gray-300 rounded-md py-2 px-3" id="model-select">
+                        <option value="gpt-4o" selected>GPT-4o</option>
+                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                        <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+                    </select>
+                </div>
+
+                <!-- 参数配置 -->
+                <div class="mb-6">
+                    <h3 class="text-md font-medium mb-2">参数配置</h3>
+
+                    <div class="mb-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Temperature</label>
+                        <div class="flex items-center">
+                            <input type="range" min="0" max="2" step="0.1" value="0.7" class="w-full"
+                                id="temperature-slider">
+                            <span class="ml-2 text-sm" id="temperature-value">0.7</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Top P</label>
+                        <div class="flex items-center">
+                            <input type="range" min="0" max="1" step="0.05" value="0.9" class="w-full"
+                                id="top-p-slider">
+                            <span class="ml-2 text-sm" id="top-p-value">0.9</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">最大输出长度</label>
+                        <input type="number" value="1000" class="w-full border border-gray-300 rounded-md py-1 px-2"
+                            id="max-tokens">
+                    </div>
+                </div>
+
+                <!-- 多模态配置 -->
+                <div class="mb-6">
+                    <h3 class="text-md font-medium mb-2">多模态能力</h3>
+
+                    <div class="flex items-center mb-2">
+                        <input type="checkbox" id="text" checked class="mr-2">
+                        <label for="text" class="text-sm">文本处理</label>
+                    </div>
+
+                    <div class="flex items-center mb-2">
+                        <input type="checkbox" id="image" class="mr-2">
+                        <label for="image" class="text-sm">图像识别</label>
+                    </div>
+
+                    <div class="flex items-center mb-2">
+                        <input type="checkbox" id="voice" class="mr-2">
+                        <label for="voice" class="text-sm">语音交互</label>
+                    </div>
+                </div>
+
+                <!-- API状态 -->
+                <div>
+                    <h3 class="text-md font-medium mb-2">API状态</h3>
+                    <div class="flex items-center">
+                        <div id="api-status-indicator" class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                        <span class="text-sm text-green-600" id="api-status-text">API连接正常</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中央工作区 -->
+            <div class="w-2/4 bg-white rounded-lg shadow-md p-4">
+                <!-- 标签页 -->
+                <div class="flex border-b border-gray-200 mb-4">
+                    <button class="px-4 py-2 tab-active">对话测试</button>
+                    <button class="px-4 py-2 text-gray-500">Prompt模板</button>
+                    <button class="px-4 py-2 text-gray-500">参数对比</button>
+                </div>
+
+                <!-- 聊天界面 -->
+                <div class="h-96 overflow-y-auto mb-4 border border-gray-200 rounded-md p-3" id="chat-container">
+                    <!-- 消息将在这里动态添加 -->
+                </div>
+
+                <!-- 输入区域 -->
+                <div class="border border-gray-300 rounded-md">
+                    <div class="p-2">
+                        <textarea class="w-full border-none focus:outline-none resize-none" rows="3"
+                            placeholder="输入您的问题..." id="message-input"></textarea>
+                    </div>
+                    <div class="flex justify-between items-center px-3 py-2 border-t border-gray-200">
+                        <div class="flex space-x-2">
+                            <button class="p-1 rounded hover:bg-gray-100" id="upload-image-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </button>
+                            <button class="p-1 rounded hover:bg-gray-100" id="voice-input-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <button
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1 rounded-md text-sm font-medium"
+                            id="send-button">
+                            发送
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧面板 -->
+            <div class="w-1/4 space-y-6">
+                <!-- 参数对比 -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h2 class="text-lg font-semibold mb-3">参数对比</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-700">Temperature 对比</h3>
+                            <div class="mt-1 grid grid-cols-2 gap-2">
+                                <div class="bg-gray-50 p-2 rounded-md">
+                                    <div class="text-xs text-gray-500">Temperature = 0.7</div>
+                                    <div class="text-sm mt-1">生成结果更加平衡，保持一致性的同时有一定创造性</div>
+                                </div>
+                                <div class="bg-gray-50 p-2 rounded-md">
+                                    <div class="text-xs text-gray-500">Temperature = 1.2</div>
+                                    <div class="text-sm mt-1">生成结果更加多样化，创造性强但可能偏离主题</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="w-full bg-gray-100 hover:bg-gray-200 py-2 rounded-md text-sm font-medium"
+                            id="compare-btn">
+                            比较不同参数结果
+                        </button>
+                    </div>
+                </div>
+
+                <!-- API信息 -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h2 class="text-lg font-semibold mb-3">API信息</h2>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">API提供商</span>
+                            <span class="font-medium">Monica</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">当前模型</span>
+                            <span class="font-medium" id="current-model">GPT-4o</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">API状态</span>
+                            <span class="font-medium text-green-600">正常</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 系统状态 -->
+                <div class="bg-white rounded-lg shadow-md p-4">
+                    <h2 class="text-lg font-semibold mb-3">系统状态</h2>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">服务器状态</span>
+                            <span class="font-medium text-green-600">运行中</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">响应时间</span>
+                            <span class="font-medium" id="response-time">--</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">会话数</span>
+                            <span class="font-medium" id="session-count">1</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        document.getElementById('send-button').addEventListener('click', sendMessage);
-        document.getElementById('message-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
+        // 设置当前日期时间
+        const now = new Date();
+        document.getElementById('last-edited').textContent = now.toLocaleString();
+
+        // 获取DOM元素
+        const chatContainer = document.getElementById('chat-container');
+        const messageInput = document.getElementById('message-input');
+        const sendButton = document.getElementById('send-button');
+        const temperatureSlider = document.getElementById('temperature-slider');
+        const temperatureValue = document.getElementById('temperature-value');
+        const topPSlider = document.getElementById('top-p-slider');
+        const topPValue = document.getElementById('top-p-value');
+        const maxTokensInput = document.getElementById('max-tokens');
+        const modelSelect = document.getElementById('model-select');
+        const compareBtn = document.getElementById('compare-btn');
+        const responseTimeElement = document.getElementById('response-time');
+        const apiStatusIndicator = document.getElementById('api-status-indicator');
+        const apiStatusText = document.getElementById('api-status-text');
+
+        // 更新温度值显示
+        temperatureSlider.addEventListener('input', function () {
+            temperatureValue.textContent = this.value;
         });
-        
+
+        // 更新top-p值显示
+        topPSlider.addEventListener('input', function () {
+            topPValue.textContent = this.value;
+        });
+
+        // 更新当前模型显示
+        modelSelect.addEventListener('change', function () {
+            document.getElementById('current-model').textContent = this.options[this.selectedIndex].text;
+        });
+
+        // 发送消息
         function sendMessage() {
-            const messageInput = document.getElementById('message-input');
             const message = messageInput.value.trim();
-            const temperature = document.getElementById('temperature-select').value;
-            
-            if (message) {
-                // 添加用户消息到聊天窗口
-                addMessage('user', message);
-                messageInput.value = '';
-                
-                // 发送请求到后端
-                fetch('/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `message=${encodeURIComponent(message)}&temperature=${temperature}`
-                })
+            if (!message) return;
+
+            // 添加用户消息到聊天窗口
+            addMessage('user', message);
+            messageInput.value = '';
+
+            // 获取参数
+            const temperature = parseFloat(temperatureSlider.value);
+            const model = modelSelect.value;
+            const maxTokens = parseInt(maxTokensInput.value);
+
+            // 记录开始时间
+            const startTime = Date.now();
+
+            // 更新API状态为"处理中"
+            apiStatusIndicator.className = 'w-3 h-3 bg-yellow-500 rounded-full mr-2';
+            apiStatusText.textContent = '请求处理中...';
+            apiStatusText.className = 'text-sm text-yellow-600';
+
+            // 发送请求到后端
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `message=${encodeURIComponent(message)}&temperature=${temperature}&max_tokens=${maxTokens}&model=${model}`
+            })
                 .then(response => response.json())
                 .then(data => {
+                    // 计算响应时间
+                    const responseTime = Date.now() - startTime;
+                    responseTimeElement.textContent = `${responseTime}ms`;
+
+                    // 更新API状态为"正常"
+                    apiStatusIndicator.className = 'w-3 h-3 bg-green-500 rounded-full mr-2';
+                    apiStatusText.textContent = 'API连接正常';
+                    apiStatusText.className = 'text-sm text-green-600';
+
                     if (data.error) {
-                        addMessage('ai', `错误: ${data.error}`);
+                        addMessage('assistant', `错误: ${data.error}`);
                     } else {
-                        addMessage('ai', data.response);
-                        
-                        // 如果用户想比较不同温度的结果
-                        if (message.toLowerCase().includes('比较') || message.toLowerCase().includes('对比')) {
-                            compareTemperatures(message);
-                        }
+                        addMessage('assistant', data.response);
                     }
                 })
                 .catch(error => {
-                    addMessage('ai', `发生错误: ${error}`);
+                    // 更新API状态为"错误"
+                    apiStatusIndicator.className = 'w-3 h-3 bg-red-500 rounded-full mr-2';
+                    apiStatusText.textContent = 'API连接错误';
+                    apiStatusText.className = 'text-sm text-red-600';
+
+                    addMessage('assistant', `发生错误: ${error}`);
                 });
-            }
         }
-        
+
+        // 添加消息到聊天窗口
         function addMessage(role, content) {
-            const chatContainer = document.getElementById('chat-container');
             const messageDiv = document.createElement('div');
-            messageDiv.className = role === 'user' ? 'user-message' : 'ai-message';
-            
+            messageDiv.className = 'flex mb-4';
+
+            // 头像和消息气泡
+            const avatarClass = role === 'user' ? 'bg-gray-300' : 'bg-indigo-500';
+            const avatarText = role === 'user' ? 'U' : 'A';
+            const avatarTextClass = role === 'user' ? 'text-gray-700' : 'text-white';
+            const bubbleClass = role === 'user' ? 'bg-gray-100' : 'bg-indigo-50';
+
             // 将换行符转换为HTML换行
             content = content.replace(/\n/g, '<br>');
-            
-            messageDiv.innerHTML = `<strong>${role === 'user' ? '您' : 'AI'}:</strong> ${content}`;
+
+            // 构建消息HTML
+            messageDiv.innerHTML = `
+        <div class="w-8 h-8 rounded-full ${avatarClass} flex items-center justify-center mr-2">
+          <span class="text-sm font-medium ${avatarTextClass}">${avatarText}</span>
+        </div>
+        <div class="${bubbleClass} rounded-lg p-3 max-w-md">
+          ${content}
+        </div>
+      `;
+
             chatContainer.appendChild(messageDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-        
-        function compareTemperatures(message) {
-            document.getElementById('comparison-container').style.display = 'flex';
-            
-            // 使用温度0.7发送请求
+
+        // 比较不同参数结果
+        compareBtn.addEventListener('click', function () {
+            const message = messageInput.value.trim();
+            if (!message) {
+                alert('请先输入一条消息进行比较');
+                return;
+            }
+
+            // 添加用户消息
+            addMessage('user', `[参数比较请求] ${message}`);
+
+            // 使用温度0.7
             fetch('/chat', {
                 method: 'POST',
                 headers: {
@@ -176,25 +431,40 @@
                 },
                 body: `message=${encodeURIComponent(message)}&temperature=0.7`
             })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('result-07').innerHTML = data.response.replace(/\n/g, '<br>');
-            });
-            
-            // 使用温度1.2发送请求
-            fetch('/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `message=${encodeURIComponent(message)}&temperature=1.2`
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('result-12').innerHTML = data.response.replace(/\n/g, '<br>');
-            });
-        }
+                .then(response => response.json())
+                .then(data => {
+                    addMessage('assistant', `[Temperature=0.7]\n${data.response}`);
+
+                    // 使用温度1.2
+                    return fetch('/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `message=${encodeURIComponent(message)}&temperature=1.2`
+                    });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    addMessage('assistant', `[Temperature=1.2]\n${data.response}`);
+                })
+                .catch(error => {
+                    addMessage('assistant', `比较过程中发生错误: ${error}`);
+                });
+        });
+
+        // 绑定事件
+        sendButton.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // 初始化时添加欢迎消息
+        addMessage('assistant', '欢迎使用 ModeLLM Studio！我是您的AI助手，请输入您的问题。');
     </script>
 </body>
-</html>
 
+</html>
