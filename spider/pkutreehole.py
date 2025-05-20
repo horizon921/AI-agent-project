@@ -40,10 +40,10 @@ app.add_middleware(
 
 # 默认认证信息，需要用户通过 /api/update_auth 端点进行设置
 auth_config = {
-    "authorization": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC90cmVlaG9sZS5wa3UuZWR1LmNuXC9jYXNfaWFhYV9sb2dpbiIsImlhdCI6MTc0NzcyMDYyNCwiZXhwIjoxNzUwMzEyNjI0LCJuYmYiOjE3NDc3MjA2MjQsImp0aSI6IjljeUZqdHp4Z3c0QjBCT2giLCJzdWIiOiIyNDAwMDEzMTA2IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.EGGuyBeZxAC_I1Km1hzVew-lILp7qpRZ-lrPRs78FT0",  # Bearer Token, e.g., "Bearer eyJ0eXAiOiJKV1..."
-    "cookie": "JWTUser=%7B%22account%22%3A%222400013106%22%2C%22id%22%3A675214%2C%22tenant_id%22%3A1%7D; pku_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC90cmVlaG9sZS5wa3UuZWR1LmNuXC9jYXNfaWFhYV9sb2dpbiIsImlhdCI6MTc0NzcyMDYyNCwiZXhwIjoxNzUwMzEyNjI0LCJuYmYiOjE3NDc3MjA2MjQsImp0aSI6IjljeUZqdHp4Z3c0QjBCT2giLCJzdWIiOiIyNDAwMDEzMTA2IiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.EGGuyBeZxAC_I1Km1hzVew-lILp7qpRZ-lrPRs78FT0; XSRF-TOKEN=eyJpdiI6Ikp4RitqM1BjQ1d1SWZJTURoRHVtdmc9PSIsInZhbHVlIjoicFVvbldhVCtNQW5ZZzNheUJrc3JZZ3NUM3R5ZGtZOWNEV0tDVGZMd3h1SS8yWlR3WWZRMmZTaElNbDJnRlBkb1RhQTJIcXk1K1labm9mODJnZXBWL1pRRzBiVk5qS01WcVB2WGpXNEtsaERHZ3NUYmNpYTJlUlJQeCswSVorSGciLCJtYWMiOiI1YjM0ODZkMjU5YmNmNjFhMWNhYWIzMjFlYjJlZjlhZjk4NTI3ZTIzZDM1OWQ3OGIxNzU4ZjA0NThjNGI0ZjhhIn0%3D; _session=eyJpdiI6IktQSVhnYTBtN1RkWUxPbFlZSlVSMFE9PSIsInZhbHVlIjoiQTdRcEVxTC9DQjBDRGoyaHRpcHUvWkpxM1FITkJKNXp5UWZTZnA1SitXdm81ZUxZeEdldW5OTmFxaGNKOWFwUXJuTTlJa2JMQ0dwQ3I0MGlraWcxQW9wdWNnanVqbGh2RzZIYmE5cU5mRzVCUTI0cmdOZ2VwRW5TRk4xSlJRUzIiLCJtYWMiOiJhMzY4NDc5ODA3MmNhYzBhYjUxM2NjM2YwMjNkYzczZDcxMDZlM2I2ZDA1NzE4YTRkNTlhNTA2MTgxYWY1NDAxIn0%3D",         # 完整的 Cookie 字符串, e.g., "JWTUser=...; pku_token=...; XSRF-TOKEN=...; _session=..."
-    "uuid": "Web_PKUHOLE_2.0.0_WEB_UUID_a0ec3813-3eb2-44a0-9b18-fef9bb105803", # 通常固定或会变化，需要从浏览器获取
-    "xsrf_token": "eyJpdiI6Ikp4RitqM1BjQ1d1SWZJTURoRHVtdmc9PSIsInZhbHVlIjoicFVvbldhVCtNQW5ZZzNheUJrc3JZZ3NUM3R5ZGtZOWNEV0tDVGZMd3h1SS8yWlR3WWZRMmZTaElNbDJnRlBkb1RhQTJIcXk1K1labm9mODJnZXBWL1pRRzBiVk5qS01WcVB2WGpXNEtsaERHZ3NUYmNpYTJlUlJQeCswSVorSGciLCJtYWMiOiI1YjM0ODZkMjU5YmNmNjFhMWNhYWIzMjFlYjJlZjlhZjk4NTI3ZTIzZDM1OWQ3OGIxNzU4ZjA0NThjNGI0ZjhhIn0%3D",     # XSRF-TOKEN cookie 的值 (不是整个 cookie 字符串，而是 token 本身)
+    "authorization": "",  # Bearer Token, e.g., "Bearer eyJ0eXAiOiJKV1..."
+    "cookie": "",         # 完整的 Cookie 字符串, e.g., "JWTUser=...; pku_token=...; XSRF-TOKEN=...; _session=..."
+    "uuid": "", # 通常固定或会变化，需要从浏览器获取
+    "xsrf_token": "",     # XSRF-TOKEN cookie 的值 (不是整个 cookie 字符串，而是 token 本身)
     "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36 Edg/136.0.0.0",
     "sec_ch_ua": "\"Chromium\";v=\"136\", \"Microsoft Edge\";v=\"136\", \"Not.A/Brand\";v=\"99\"",
     "sec_ch_ua_platform": "\"Windows\""
