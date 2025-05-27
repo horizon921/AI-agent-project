@@ -1,0 +1,18 @@
+2025-05-26 12:22:18,681 - root - ERROR - Error in chat endpoint: 400: No user message found
+2025-05-26 12:22:21,010 - root - ERROR - Error in chat endpoint: 400: No user message found
+2025-05-26 12:22:26,004 - root - ERROR - Error in chat endpoint: 400: No user message found
+2025-05-26 12:22:26,682 - root - ERROR - Error in chat endpoint: 400: No user message found
+2025-05-26 12:22:27,359 - root - ERROR - Error in chat endpoint: 400: No user message found
+2025-05-26 12:22:59,365 - root - ERROR - Error in chat endpoint: 400: No user message found
+2025-05-26 12:24:26,133 - root - ERROR - Error in chat endpoint: 400: No user message found
+2025-05-26 12:24:30,336 - root - ERROR - Error in chat endpoint: 400: No user message found
+2025-05-26 12:24:34,316 - root - ERROR - Error in chat endpoint: 400: No user message found
+2025-05-26 12:25:24,068 - httpx - INFO - HTTP Request: POST https://api.siliconflow.cn/v1/chat/completions "HTTP/1.1 400 Bad Request"
+2025-05-26 12:25:56,585 - httpx - INFO - HTTP Request: POST https://api.siliconflow.cn/v1/chat/completions "HTTP/1.1 400 Bad Request"
+2025-05-26 12:25:57,782 - httpx - INFO - HTTP Request: POST https://api.siliconflow.cn/v1/chat/completions "HTTP/1.1 400 Bad Request"
+2025-05-26 12:26:34,852 - httpx - INFO - HTTP Request: POST https://api.siliconflow.cn/v1/chat/completions "HTTP/1.1 400 Bad Request"
+2025-05-26 12:27:14,247 - httpx - INFO - HTTP Request: POST https://api.siliconflow.cn/v1/chat/completions "HTTP/1.1 400 Bad Request"
+2025-05-26 12:33:42,370 - httpx - INFO - HTTP Request: POST https://api.siliconflow.cn/v1/chat/completions "HTTP/1.1 400 Bad Request"
+2025-05-26 12:34:34,064 - httpx - INFO - HTTP Request: POST https://api.siliconflow.cn/v1/chat/completions "HTTP/1.1 400 Bad Request"
+2025-05-26 12:34:58,741 - httpx - INFO - HTTP Request: POST https://api.siliconflow.cn/v1/chat/completions "HTTP/1.1 400 Bad Request"
+2025-05-26 12:35:38,888 - httpx - INFO - HTTP Request: POST https://api.siliconflow.cn/v1/chat/completions "HTTP/1.1 400 Bad Request"

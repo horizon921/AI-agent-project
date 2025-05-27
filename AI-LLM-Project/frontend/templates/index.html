@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学术论文分析与教育辅导助手</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>学术论文分析与教育辅导助手</h1>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            <!-- 消息将在这里动态添加 -->
+            <div class="message bot-message">
+                <div class="message-content">
+                    <p>你好！我是你的学术论文分析与教育辅导助手。有什么我可以帮助你的吗？</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <textarea id="user-input" placeholder="输入您的问题..." rows="1"></textarea>
+            <button id="send-button">发送</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>
