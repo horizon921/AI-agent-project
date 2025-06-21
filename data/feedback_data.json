@@ -1,0 +1,114 @@
+[
+  {
+    "interaction_id": "test_feedback_1750528296460",
+    "timestamp": "2025-06-22T01:51:36.461240",
+    "feedback_type": "教育内容生成",
+    "session_id": "1750528247.535504",
+    "ratings": {
+      "accuracy": 5,
+      "helpfulness": 5,
+      "clarity": 5,
+      "relevance": 5
+    },
+    "comment": "",
+    "average_rating": 5.0
+  },
+  {
+    "interaction_id": "test_feedback_1750528306441",
+    "timestamp": "2025-06-22T01:51:46.442248",
+    "feedback_type": "教育内容生成",
+    "session_id": "1750528247.535504",
+    "ratings": {
+      "accuracy": 4,
+      "helpfulness": 5,
+      "clarity": 4,
+      "relevance": 5
+    },
+    "comment": "",
+    "average_rating": 4.5
+  },
+  {
+    "interaction_id": "test_feedback_1750528306651",
+    "timestamp": "2025-06-22T01:51:46.652528",
+    "feedback_type": "教育内容生成",
+    "session_id": "1750528247.535504",
+    "ratings": {
+      "accuracy": 4,
+      "helpfulness": 5,
+      "clarity": 4,
+      "relevance": 5
+    },
+    "comment": "",
+    "average_rating": 4.5
+  },
+  {
+    "interaction_id": "test_feedback_1750528375649",
+    "timestamp": "2025-06-22T01:52:55.650856",
+    "feedback_type": "教育内容生成",
+    "session_id": "1750528247.535504",
+    "ratings": {
+      "accuracy": 5,
+      "helpfulness": 5,
+      "clarity": 4,
+      "relevance": 5
+    },
+    "comment": "",
+    "average_rating": 4.75
+  },
+  {
+    "interaction_id": "test_feedback_1750528382144",
+    "timestamp": "2025-06-22T01:53:02.145720",
+    "feedback_type": "教育内容生成",
+    "session_id": "1750528247.535504",
+    "ratings": {
+      "accuracy": 5,
+      "helpfulness": 5,
+      "clarity": 5,
+      "relevance": 5
+    },
+    "comment": "",
+    "average_rating": 5.0
+  },
+  {
+    "interaction_id": "education_光合作用_小学_1750529305046",
+    "timestamp": "2025-06-22T02:08:29.818782",
+    "feedback_type": "教育内容生成",
+    "session_id": "1750529284.489189",
+    "ratings": {
+      "accuracy": 3,
+      "helpfulness": 3,
+      "clarity": 3,
+      "completeness": 3
+    },
+    "comment": null,
+    "average_rating": 3.0
+  },
+  {
+    "interaction_id": "education_微积分_小学_1750529435245",
+    "timestamp": "2025-06-22T02:10:48.990023",
+    "feedback_type": "教育内容生成",
+    "session_id": "1750529284.489189",
+    "ratings": {
+      "accuracy": 5,
+      "helpfulness": 4,
+      "clarity": 4,
+      "completeness": 5
+    },
+    "comment": null,
+    "average_rating": 4.5
+  },
+  {
+    "interaction_id": "paper_analysis_1750529607642",
+    "timestamp": "2025-06-22T02:13:38.655912",
+    "feedback_type": "论文分析",
+    "session_id": "1750529551.025003",
+    "ratings": {
+      "accuracy": 5,
+      "helpfulness": 5,
+      "clarity": 5,
+      "completeness": 5
+    },
+    "comment": null,
+    "average_rating": 5.0
+  }
+]
