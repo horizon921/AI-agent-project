@@ -1,0 +1,12 @@
+streamlit
+openai
+duckduckgo-search
+matplotlib
+numpy
+scipy
+pandas
+pillow
+requests
+speechrecognition
+pydub
+pyaudio
