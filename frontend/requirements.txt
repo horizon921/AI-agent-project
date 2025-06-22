@@ -7,6 +7,6 @@ scipy
 pandas
 pillow
 requests
-streamlit-audio-recorder
+streamlit-audiorecorder
 speech-recognition
 pydub
