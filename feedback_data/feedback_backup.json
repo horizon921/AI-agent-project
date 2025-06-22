@@ -1,0 +1,26 @@
+[
+  {
+    "interaction_id": "test_feedback_1750573096663",
+    "timestamp": "2025-06-22T14:18:16.663170",
+    "rating": 3.0,
+    "average_rating": 3.0,
+    "ratings": {
+      "accuracy": 3,
+      "helpfulness": 3,
+      "clarity": 3,
+      "relevance": 3
+    },
+    "comment": "",
+    "session_id": "1750573069.428785",
+    "feedback_type": "详细评分"
+  },
+  {
+    "interaction_id": "education_光合作用_小学_1750573127044",
+    "timestamp": "2025-06-22T14:19:25.421254",
+    "rating": 5,
+    "average_rating": 5,
+    "comment": "",
+    "session_id": "1750573069.428785",
+    "feedback_type": "整体评分"
+  }
+]

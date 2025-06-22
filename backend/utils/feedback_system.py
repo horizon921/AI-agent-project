@@ -12,10 +12,9 @@ from io import StringIO
 
 class FeedbackSystem:
     def __init__(self):
-        # 🔥 修复：使用绝对路径，确保文件位置可控
+        # 使用绝对路径，确保文件位置可控
         self.data_dir = os.path.join(os.getcwd(), "feedback_data")
-        self.data_file = os.path.join(
-            self.data_dir, "feedback_data.json")  # ✅ 添加 data_file 属性
+        self.data_file = os.path.join(self.data_dir, "feedback_data.json")
         self.feedback_file = self.data_file  # 兼容性别名
         self.backup_file = os.path.join(self.data_dir, "feedback_backup.json")
 
@@ -35,31 +34,11 @@ class FeedbackSystem:
         if 'interaction_feedback' not in st.session_state:
             st.session_state.interaction_feedback = {}
 
-        # 🔥 启动时自动加载文件数据
+        # 启动时自动加载文件数据
         self._load_and_sync_data()
 
-    def _load_and_sync_data(self):
-        """加载并同步文件数据到session_state"""
-        try:
-            file_data = self._load_feedback_from_file()
-            if file_data:
-                # 合并数据，避免重复
-                existing_ids = {f.get('interaction_id')
-                                for f in st.session_state.feedback_data}
-                new_data = [f for f in file_data if f.get(
-                    'interaction_id') not in existing_ids]
-
-                if new_data:
-                    st.session_state.feedback_data.extend(new_data)
-                    # st.success(f"✅ 加载了 {len(file_data)} 条历史反馈数据")  # 注释掉避免重复显示
-
-                self._update_stats()
-        except Exception as e:
-            st.warning(f"加载历史数据时出错: {e}")
-
-    # ✅ 添加缺少的 submit_feedback 方法
     def submit_feedback(self, interaction_id: str, feedback_data: Dict[str, Any]) -> bool:
-        """提交反馈数据 - 兼容原有调用"""
+        """✅ 提交反馈数据 - 主要方法"""
         try:
             # 从 feedback_data 中提取评分
             ratings = feedback_data.get('ratings', {})
@@ -83,7 +62,7 @@ class FeedbackSystem:
                 'feedback_type': '详细评分'
             }
 
-            # 🔥 检查是否已存在相同反馈
+            # 检查是否已存在相同反馈
             existing_feedback = [
                 f for f in st.session_state.feedback_data
                 if f.get('interaction_id') == interaction_id
@@ -96,12 +75,11 @@ class FeedbackSystem:
             # 添加到session state
             st.session_state.feedback_data.append(feedback_record)
 
-            # 🔥 立即保存到文件
+            # 立即保存到文件
             save_success = self._save_feedback_to_file()
 
             if save_success:
-                # st.success(f"✅ 反馈已保存到: {self.feedback_file}")  # 注释掉避免重复显示
-                pass
+                st.success("✅ 反馈已保存")
             else:
                 st.warning("⚠️ 文件保存失败，但反馈已记录在当前会话中")
 
@@ -117,8 +95,26 @@ class FeedbackSystem:
             st.error(f"提交反馈时出错: {e}")
             return False
 
+    def _load_and_sync_data(self):
+        """加载并同步文件数据到session_state"""
+        try:
+            file_data = self._load_feedback_from_file()
+            if file_data:
+                # 合并数据，避免重复
+                existing_ids = {f.get('interaction_id')
+                                for f in st.session_state.feedback_data}
+                new_data = [f for f in file_data if f.get(
+                    'interaction_id') not in existing_ids]
+
+                if new_data:
+                    st.session_state.feedback_data.extend(new_data)
+
+                self._update_stats()
+        except Exception as e:
+            st.warning(f"加载历史数据时出错: {e}")
+
     def show_feedback_form(self, interaction_id):
-        """显示反馈表单 - 修复版本"""
+        """显示反馈表单"""
         st.markdown("### 📝 请为这次回答评分")
 
         # 检查是否已经提交过反馈
@@ -126,18 +122,7 @@ class FeedbackSystem:
             st.success("🎉 您已经为这次对话评过分了，感谢您的反馈！")
             return
 
-        # 初始化当前交互的反馈状态
-        feedback_key = f"feedback_{interaction_id}"
-        if feedback_key not in st.session_state:
-            st.session_state[feedback_key] = {
-                'ratings': {},
-                'comment': '',
-                'submitted': False
-            }
-
-        current_feedback = st.session_state[feedback_key]
-
-        # 🔥 简化的评分界面
+        # 简化的评分界面
         st.markdown("**整体满意度**")
         overall_rating = st.select_slider(
             "请选择整体评分",
@@ -169,7 +154,6 @@ class FeedbackSystem:
                 if success:
                     st.success("✅ 反馈提交成功！")
                     st.balloons()
-                    # 标记为已提交
                     st.session_state.interaction_feedback[interaction_id] = True
                     time.sleep(1)
                     st.rerun()
@@ -178,8 +162,6 @@ class FeedbackSystem:
 
         with col2:
             if st.button("🔄 重置", key=f"reset_{interaction_id}"):
-                if feedback_key in st.session_state:
-                    del st.session_state[feedback_key]
                 st.rerun()
 
         with col3:
@@ -188,18 +170,17 @@ class FeedbackSystem:
     def _submit_simple_feedback(self, interaction_id: str, rating: int, comment: str) -> bool:
         """提交简化的反馈数据"""
         try:
-            # 构建反馈记录
             feedback_record = {
                 'interaction_id': interaction_id,
                 'timestamp': datetime.now().isoformat(),
                 'rating': rating,
-                'average_rating': rating,  # 兼容字段
+                'average_rating': rating,
                 'comment': comment,
                 'session_id': st.session_state.get('session_id', str(uuid.uuid4())),
                 'feedback_type': '整体评分'
             }
 
-            # 🔥 检查是否已存在相同反馈
+            # 检查是否已存在相同反馈
             existing_feedback = [
                 f for f in st.session_state.feedback_data
                 if f.get('interaction_id') == interaction_id
@@ -212,8 +193,8 @@ class FeedbackSystem:
             # 添加到session state
             st.session_state.feedback_data.append(feedback_record)
 
-            # 🔥 立即保存到文件
-            save_success = self._save_feedback_to_file()
+            # 立即保存到文件
+            self._save_feedback_to_file()
 
             # 更新统计
             self._update_stats()
@@ -226,18 +207,15 @@ class FeedbackSystem:
 
     def _is_feedback_submitted(self, interaction_id: str) -> bool:
         """检查是否已提交反馈"""
-        # 检查session_state中的标记
         if st.session_state.interaction_feedback.get(interaction_id):
             return True
 
-        # 检查实际数据中是否存在
         existing_feedback = [
             f for f in st.session_state.feedback_data
             if f.get('interaction_id') == interaction_id
         ]
 
         if existing_feedback:
-            # 同步标记
             st.session_state.interaction_feedback[interaction_id] = True
             return True
 
@@ -332,12 +310,15 @@ class FeedbackSystem:
             st.metric("平均评分", f"{avg_rating:.1f}⭐")
 
         with col3:
-            # 计算满意度（4-5星为满意）
             distribution = stats.get('rating_distribution', {})
             satisfied = distribution.get(4, 0) + distribution.get(5, 0)
-            satisfaction_rate = (
-                satisfied / stats['total_count'] * 100) if stats['total_count'] > 0 else 0
-            st.metric("满意度", f"{satisfaction_rate:.1f}%")
+            total = stats.get('total', 0)
+
+            if total > 0:
+                rate = round((satisfied / total) * 100, 1)
+                st.metric("满意度", f"{rate:.1f}%")
+            else:
+                st.metric("满意度", "0%")
 
         # 显示评分分布
         if stats.get('rating_distribution'):
@@ -348,7 +329,6 @@ class FeedbackSystem:
                     count / stats['total_count'] * 100) if stats['total_count'] > 0 else 0
                 st.write(f"{'⭐' * rating}: {count}次 ({percentage:.1f}%)")
 
-    # ✅ 添加缺少的方法
     def force_refresh_data(self):
         """强制刷新数据"""
         self._load_and_sync_data()
