@@ -11,12 +11,18 @@ from backend.api.llm_service import LLMService
 from backend.api.parameter_service import ParameterComparisonService
 from backend.api.tools_service import ToolsService
 from backend.api.validation import SchemaValidator
+from backend.api.model_management_router import router as management_router
 from backend.config.settings import get_settings
 from backend.config.logging_config import setup_logging
 from backend.core.models import (
     ChatRequest, ChatResponse, ErrorResponse,
-    PaperAnalysisRequest, EducationalContentRequest
+    PaperAnalysisRequest, EducationalContentRequest,
+    Provider, AIModel # Import new models
 )
+from backend.core.database import engine, Base
+
+# Create database tables
+Base.metadata.create_all(bind=engine)
 
 # 设置日志
 logger = setup_logging()
@@ -40,11 +46,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 包含管理路由
+app.include_router(management_router)
+
 # 依赖注入
 
 
-def get_llm_service():
-    return LLMService()
+from sqlalchemy.orm import Session
+from backend.core.database import get_db
+
+def get_llm_service(db: Session = Depends(get_db)):
+    return LLMService(db)
 
 
 def get_parameter_service(llm_service: LLMService = Depends(get_llm_service)):
@@ -70,21 +82,18 @@ async def chat(
 ):
     """聊天API端点"""
     try:
-        # 提取最后一条用户消息作为提示
-        user_messages = [
-            msg for msg in request.messages if msg.role.lower() == "user"]
-        if not user_messages:
-            raise HTTPException(
-                status_code=400, detail="No user message found")
+        if not request.messages:
+            raise HTTPException(status_code=400, detail="Messages list cannot be empty.")
 
-        prompt = user_messages[-1].content
+        # Convert Pydantic models to dictionaries before passing to the service
+        messages_as_dicts = [msg.dict() for msg in request.messages]
 
         if request.stream:
             # 流式响应需要特殊处理
             return StreamingResponse(
                 content=llm_service.generate_response(
-                    prompt,
-                    request.model,
+                    messages_as_dicts,
+                    request.model_id,
                     request.temperature,
                     request.max_tokens,
                     request.stream
@@ -93,8 +102,8 @@ async def chat(
             )
         else:
             return llm_service.generate_response(
-                prompt,
-                request.model,
+                messages_as_dicts,
+                request.model_id,
                 request.temperature,
                 request.max_tokens,
                 request.stream
@@ -111,7 +120,7 @@ async def analyze_paper(
 ):
     """论文分析API端点"""
     try:
-        return llm_service.analyze_paper(request.paper_text, request.model)
+        return llm_service.analyze_paper(request.paper_text, request.model_id)
     except Exception as e:
         logger.error(f"Error in analyze_paper endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -127,7 +136,7 @@ async def generate_educational_content(
         return llm_service.generate_educational_content(
             request.topic,
             request.level,
-            request.model
+            request.model_id
         )
     except Exception as e:
         logger.error(f"Error in educational_content endpoint: {str(e)}")
@@ -177,14 +186,14 @@ async def calculate(
 @app.post("/api/compare_parameters")
 async def compare_parameters(
     prompt: str,
-    model: str,
+    model_id: int,
     parameter_sets: List[Dict[str, Any]],
     parameter_service: ParameterComparisonService = Depends(
         get_parameter_service)
 ):
     """参数比较API端点"""
     try:
-        return await parameter_service.compare_parameters(prompt, model, parameter_sets)
+        return await parameter_service.compare_parameters(prompt, model_id, parameter_sets)
     except Exception as e:
         logger.error(f"Error in compare_parameters endpoint: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

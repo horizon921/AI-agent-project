@@ -37,5 +37,41 @@
     "comment": "",
     "session_id": "1750573674.353161",
     "feedback_type": "详细评分"
+  },
+  {
+    "interaction_id": "chat_msg_1_5929293467506211101",
+    "timestamp": "2025-06-22T16:03:31.047860",
+    "rating": 5,
+    "average_rating": 5,
+    "comment": "",
+    "session_id": "1750579305.018218",
+    "feedback_type": "整体评分"
+  },
+  {
+    "interaction_id": "chat_msg_3_4884307321600938904",
+    "timestamp": "2025-06-22T16:06:01.946443",
+    "rating": 5,
+    "average_rating": 5,
+    "comment": "",
+    "session_id": "1750579305.018218",
+    "feedback_type": "整体评分"
+  },
+  {
+    "interaction_id": "chat_msg_1_5232270627917079413",
+    "timestamp": "2025-06-22T16:07:45.784090",
+    "rating": 1,
+    "average_rating": 1,
+    "comment": "",
+    "session_id": "1750579584.917629",
+    "feedback_type": "整体评分"
+  },
+  {
+    "interaction_id": "chat_msg_1_-8520844468230045679",
+    "timestamp": "2025-06-22T16:15:15.847068",
+    "rating": 1,
+    "average_rating": 1,
+    "comment": "",
+    "session_id": "1750579910.031413",
+    "feedback_type": "整体评分"
   }
 ]

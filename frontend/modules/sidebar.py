@@ -9,23 +9,46 @@ from backend.utils.prompt_templates import prompt_manager
 from backend.utils.feedback_system import feedback_system
 
 
+import requests
+
+API_BASE_URL = "http://127.0.0.1:8000/api/management"
+
+@st.cache_data(ttl=60)
+def get_models_from_api():
+    """从API获取并缓存模型列表"""
+    try:
+        response = requests.get(f"{API_BASE_URL}/providers/")
+        response.raise_for_status()
+        providers = response.json()
+        
+        model_options = {}
+        for provider in providers:
+            for model in provider.get('models', []):
+                display_name = f"{provider['name']} - {model['name']}"
+                model_options[display_name] = model['id']
+        return model_options
+    except requests.exceptions.RequestException as e:
+        st.error(f"无法加载模型: {e}")
+        return {"No models available": None}
+
+
 def render_sidebar():
-    """渲染侧边栏"""
+    """渲染边栏"""
     with st.sidebar:
-        st.header("模型设置")
+        st.header("🤖 模型设置")
 
-        model_display = st.selectbox(
-            "选择模型",
-            ["DeepSeek-V3", "Qwen-72B", "DeepSeek-R1"]
-        )
-
-        model_mapping = {
-            "DeepSeek-V3": "Pro/deepseek-ai/DeepSeek-V3",
-            "Qwen-72B": "Qwen/Qwen2.5-72B-Instruct",
-            "DeepSeek-R1": "Pro/deepseek-ai/DeepSeek-R1"
-        }
-
-        model = model_mapping.get(model_display, "deepseek-chat")
+        model_options = get_models_from_api()
+        
+        if model_options and "No models available" not in model_options:
+            model_display_name = st.selectbox(
+                "选择模型",
+                list(model_options.keys()),
+                key="model_selector"
+            )
+            model_id = model_options.get(model_display_name)
+        else:
+            st.warning("没有可用的模型。")
+            model_id = None
 
         temperature = st.slider(
             "Temperature",
@@ -46,25 +69,22 @@ def render_sidebar():
         )
 
         st.divider()
-
-        st.header("功能选择")
-        app_mode = st.radio(
-            "选择功能",
-            ["聊天助手", "论文分析", "教育内容生成", "工具集成"]
-        )
-
-        st.divider()
+        
         st.header("🔍 数据验证")
 
         if st.checkbox("显示Schema详情", help="显示当前使用的JSON Schema规范"):
-            if app_mode == "论文分析":
+            schema_type = st.selectbox(
+                "选择Schema类型",
+                ["聊天消息", "论文分析", "教育内容生成"]
+            )
+            if schema_type == "论文分析":
                 st.json(PAPER_ANALYSIS_SCHEMA)
-            elif app_mode == "教育内容生成":
+            elif schema_type == "教育内容生成":
                 st.json(EDUCATION_CONTENT_SCHEMA)
-            elif app_mode == "聊天助手":
+            elif schema_type == "聊天消息":
                 st.json(CHAT_MESSAGE_SCHEMA)
 
-        # 🔥 反馈统计部分
+        # 反馈统计部分
         st.divider()
         st.header("📊 反馈统计")
 
@@ -91,8 +111,7 @@ def render_sidebar():
         # 测试反馈表单
         render_feedback_test_form()
 
-    return model, temperature, max_tokens, app_mode
-
+    return model_id, temperature, max_tokens
 
 def render_feedback_details():
     """渲染反馈详细信息"""

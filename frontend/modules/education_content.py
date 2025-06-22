@@ -1,7 +1,8 @@
 import streamlit as st
 import time
+import requests
+import json
 from datetime import datetime
-from openai import OpenAI
 from backend.utils.prompt_templates import prompt_manager
 from backend.utils.validation import validator, EDUCATION_CONTENT_SCHEMA
 from backend.utils.feedback_system import feedback_system
@@ -49,7 +50,9 @@ def display_education_content(parsed_data, topic, level, use_expanders=True):
         st.markdown(f"{i}. {reading}")
 
 
-def handle_education_content(model, max_tokens, api_key, base_url):
+API_BASE_URL = "http://127.0.0.1:8000/api"
+
+def handle_education_content(model_id: int, max_tokens: int):
     """处理教育内容生成功能"""
     st.header("🎓 教育内容生成")
     st.session_state.current_app_mode = "教育内容生成"
@@ -113,24 +116,18 @@ def handle_education_content(model, max_tokens, api_key, base_url):
 
         with st.spinner(f"正在生成关于「{topic}」的{level}级别教育内容..."):
             try:
-                client = OpenAI(api_key=api_key, base_url=base_url)
+                request_payload = {
+                    "topic": topic,
+                    "level": level,
+                    "model_id": model_id
+                }
+                response = requests.post(f"{API_BASE_URL}/educational_content", json=request_payload)
+                response.raise_for_status()
 
-                content_request = f"主题：{topic}，级别：{level}"
-                structured_prompt = prompt_manager.create_structured_prompt(
-                    content_request, "education_content")
-
-                response = client.chat.completions.create(
-                    model=model,
-                    messages=[
-                        {"role": "system",
-                            "content": "你是一个专业的教育内容生成助手。请严格按照用户要求的JSON格式输出教育内容。"},
-                        {"role": "user", "content": structured_prompt}
-                    ],
-                    temperature=0.1,
-                    max_tokens=max_tokens
-                )
-
-                content_result = response.choices[0].message.content
+                content_result = response.json().get('content')
+                if not content_result:
+                    st.error("API返回结果为空。")
+                    st.stop()
 
                 # 验证结果
                 parsed_data, is_valid, error_msg = validator.safe_parse_json_response(

@@ -10,7 +10,7 @@ class ParameterComparisonService:
 
     async def compare_parameters(self,
                                  prompt: str,
-                                 model: str,
+                                 model_id: int,
                                  parameter_sets: List[Dict[str, Any]]) -> Dict[str, Any]:
         """比较不同参数设置下的LLM输出"""
         results = {}
@@ -20,7 +20,7 @@ class ParameterComparisonService:
             task = asyncio.create_task(
                 self.llm_service.generate_response(
                     prompt=prompt,
-                    model=model,
+                    model_id=model_id,
                     **params,
                     stream=False  # 参数比较时不使用流式输出
                 )

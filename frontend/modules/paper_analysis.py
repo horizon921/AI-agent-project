@@ -1,7 +1,8 @@
 import streamlit as st
 import time
+import requests
+import json
 from datetime import datetime
-from openai import OpenAI
 from backend.utils.prompt_templates import prompt_manager
 from backend.utils.validation import validator, PAPER_ANALYSIS_SCHEMA
 from backend.utils.feedback_system import feedback_system
@@ -38,7 +39,9 @@ def display_paper_analysis_results(parsed_data):
     st.markdown(parsed_data['significance'])
 
 
-def handle_paper_analysis(model, max_tokens, api_key, base_url):
+API_BASE_URL = "http://127.0.0.1:8000/api"
+
+def handle_paper_analysis(model_id: int, max_tokens: int):
     """处理论文分析功能"""
     st.header("📝 论文分析")
     st.session_state.current_app_mode = "论文分析"
@@ -97,24 +100,17 @@ def handle_paper_analysis(model, max_tokens, api_key, base_url):
 
         with st.spinner("正在分析论文..."):
             try:
-                client = OpenAI(api_key=api_key, base_url=base_url)
-
-                # 使用模板管理器生成提示词
-                structured_prompt = prompt_manager.create_structured_prompt(
-                    paper_text, "paper_analysis")
-
-                response = client.chat.completions.create(
-                    model=model,
-                    messages=[
-                        {"role": "system",
-                            "content": "你是一个专业的学术论文分析助手。请严格按照用户要求的JSON格式输出分析结果。"},
-                        {"role": "user", "content": structured_prompt}
-                    ],
-                    temperature=0.1,
-                    max_tokens=max_tokens
-                )
-
-                analysis_result = response.choices[0].message.content
+                request_payload = {
+                    "paper_text": paper_text,
+                    "model_id": model_id
+                }
+                response = requests.post(f"{API_BASE_URL}/analyze_paper", json=request_payload)
+                response.raise_for_status()
+                
+                analysis_result = response.json().get('content')
+                if not analysis_result:
+                    st.error("API返回结果为空。")
+                    st.stop()
 
                 # 验证结果
                 parsed_data, is_valid, error_msg = validator.safe_parse_json_response(
